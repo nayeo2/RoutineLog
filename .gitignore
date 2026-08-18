@@ -1,0 +1,47 @@
+# ==============================
+# IntelliJ / IDE
+# ==============================
+.idea/
+*.iml
+.vscode/
+
+# ==============================
+# Backend - Spring Boot / Gradle
+# ==============================
+backend/.gradle/
+backend/build/
+backend/out/
+
+# ==============================
+# Frontend - React / Vite
+# ==============================
+frontend/node_modules/
+frontend/dist/
+
+# ==============================
+# Environment Variables
+# ==============================
+.env
+.env.*
+!.env.example
+
+backend/src/main/resources/application-local.yml
+frontend/.env.local
+
+# ==============================
+# Logs
+# ==============================
+*.log
+logs/
+
+# ==============================
+# OS
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Temporary Files
+# ==============================
+*.tmp
+*.temp

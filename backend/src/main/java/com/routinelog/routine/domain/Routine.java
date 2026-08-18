@@ -11,8 +11,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,4 +47,14 @@ public class Routine extends BaseEntity {
 
 	@Column(nullable = false)
 	private boolean active = true;
+
+	@OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<RoutineRepeatDay> repeatDays = new ArrayList<>();
+
+	public Routine(User user, String title, LocalTime scheduledTime, List<DayOfWeek> repeatDays) {
+		this.user = user;
+		this.title = title;
+		this.scheduledTime = scheduledTime;
+		repeatDays.forEach(dayOfWeek -> this.repeatDays.add(new RoutineRepeatDay(this, dayOfWeek)));
+	}
 }

@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +36,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(errorCode.getHttpStatus())
 			.body(ApiResponse.failure(errorCode, fields));
+	}
+
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable() {
+		ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
+		return ResponseEntity
+			.status(errorCode.getHttpStatus())
+			.body(ApiResponse.failure(errorCode));
 	}
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)

@@ -49,6 +49,11 @@ public class RoutineService {
 			.toList();
 	}
 
+	@Transactional(readOnly = true)
+	public RoutineResponse find(Long userId, Long routineId) {
+		return RoutineResponse.from(findOwnedRoutine(userId, routineId));
+	}
+
 	@Transactional
 	public RoutineResponse update(Long userId, Long routineId, UpdateRoutineRequest request) {
 		Routine routine = findOwnedRoutine(userId, routineId);

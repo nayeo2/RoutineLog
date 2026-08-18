@@ -15,6 +15,8 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
 	boolean existsByDailyRoutineId(Long dailyRoutineId);
 
+	List<Video> findAllByDailyRoutineIdIn(List<Long> dailyRoutineIds);
+
 	@Query("""
 		select video
 		from Video video

@@ -55,4 +55,23 @@ public class DailyVlog extends BaseEntity {
 
 	@Column(name = "failure_message", length = 1000)
 	private String failureMessage;
+
+	public DailyVlog(User user, LocalDate vlogDate) {
+		this.user = user;
+		this.vlogDate = vlogDate;
+	}
+
+	public void succeed(String objectKey, BigDecimal durationSeconds) {
+		this.objectKey = objectKey;
+		this.durationSeconds = durationSeconds;
+		this.failureMessage = null;
+		this.status = VlogStatus.SUCCESS;
+	}
+
+	public void fail(String failureMessage) {
+		this.objectKey = null;
+		this.durationSeconds = null;
+		this.failureMessage = failureMessage;
+		this.status = VlogStatus.FAILED;
+	}
 }

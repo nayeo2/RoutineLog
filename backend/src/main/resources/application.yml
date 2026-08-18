@@ -3,3 +3,17 @@ spring:
     name: backend
   profiles:
     default: local
+  servlet:
+    multipart:
+      max-file-size: ${VIDEO_MAX_FILE_SIZE:50MB}
+      max-request-size: ${VIDEO_MAX_REQUEST_SIZE:51MB}
+
+aws:
+  region: ${AWS_REGION:ap-northeast-2}
+  s3:
+    bucket: ${S3_BUCKET_NAME:}
+
+video:
+  ffmpeg-path: ${FFMPEG_PATH:ffmpeg}
+  ffprobe-path: ${FFPROBE_PATH:ffprobe}
+  max-file-size-bytes: ${VIDEO_MAX_FILE_SIZE_BYTES:52428800}

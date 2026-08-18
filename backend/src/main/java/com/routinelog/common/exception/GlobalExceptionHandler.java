@@ -6,10 +6,13 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @RestControllerAdvice
@@ -46,9 +49,28 @@ public class GlobalExceptionHandler {
 			.body(ApiResponse.failure(errorCode));
 	}
 
+	@ExceptionHandler({
+		MethodArgumentTypeMismatchException.class,
+		MissingServletRequestParameterException.class
+	})
+	public ResponseEntity<ApiResponse<Void>> handleRequestBindingException() {
+		ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
+		return ResponseEntity
+			.status(errorCode.getHttpStatus())
+			.body(ApiResponse.failure(errorCode));
+	}
+
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed() {
 		ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+		return ResponseEntity
+			.status(errorCode.getHttpStatus())
+			.body(ApiResponse.failure(errorCode));
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceeded() {
+		ErrorCode errorCode = ErrorCode.VIDEO_TOO_LARGE;
 		return ResponseEntity
 			.status(errorCode.getHttpStatus())
 			.body(ApiResponse.failure(errorCode));

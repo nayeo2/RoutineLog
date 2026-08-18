@@ -3,6 +3,8 @@ package com.routinelog;
 import com.routinelog.dailyroutine.repository.DailyRoutineRepository;
 import com.routinelog.routine.repository.RoutineRepository;
 import com.routinelog.user.repository.UserRepository;
+import com.routinelog.video.repository.VideoRepository;
+import com.routinelog.vlog.repository.DailyVlogRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,6 +22,12 @@ class BackendApplicationTests {
 
 	@MockitoBean
 	private DailyRoutineRepository dailyRoutineRepository;
+
+	@MockitoBean
+	private VideoRepository videoRepository;
+
+	@MockitoBean
+	private DailyVlogRepository dailyVlogRepository;
 
 	@Test
 	void contextLoads() {

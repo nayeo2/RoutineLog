@@ -112,6 +112,30 @@ class RoutineServiceTest {
 	}
 
 	@Test
+	void findReturnsOwnedRoutine() {
+		Routine routine = ownedRoutine(1L);
+		when(routineRepository.findById(10L)).thenReturn(Optional.of(routine));
+
+		RoutineResponse response = routineService.find(1L, 10L);
+
+		assertEquals("Morning exercise", response.title());
+		assertEquals(LocalTime.of(7, 0), response.scheduledTime());
+	}
+
+	@Test
+	void findRejectsRoutineOwnedByAnotherUser() {
+		Routine routine = ownedRoutine(2L);
+		when(routineRepository.findById(10L)).thenReturn(Optional.of(routine));
+
+		BusinessException exception = assertThrows(
+			BusinessException.class,
+			() -> routineService.find(1L, 10L)
+		);
+
+		assertEquals(ErrorCode.ROUTINE_ACCESS_DENIED, exception.getErrorCode());
+	}
+
+	@Test
 	void updateChangesOnlyProvidedFields() {
 		Long userId = 1L;
 		Routine routine = ownedRoutine(userId);

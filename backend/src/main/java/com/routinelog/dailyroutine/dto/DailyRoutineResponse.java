@@ -18,6 +18,10 @@ public record DailyRoutineResponse(
 ) {
 
 	public static DailyRoutineResponse from(DailyRoutine dailyRoutine) {
+		return from(dailyRoutine, null);
+	}
+
+	public static DailyRoutineResponse from(DailyRoutine dailyRoutine, Long videoId) {
 		Long routineId = dailyRoutine.getRoutine() == null
 			? null
 			: dailyRoutine.getRoutine().getId();
@@ -30,7 +34,7 @@ public record DailyRoutineResponse(
 			dailyRoutine.getScheduledTime(),
 			dailyRoutine.getStatus(),
 			dailyRoutine.getFailureReason(),
-			null
+			videoId == null ? null : new VideoReference(videoId)
 		);
 	}
 

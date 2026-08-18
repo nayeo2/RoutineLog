@@ -97,4 +97,21 @@ public class DailyRoutine extends BaseEntity {
 		this.status = RoutineStatus.PENDING;
 		this.failureReason = null;
 	}
+
+	public void succeed() {
+		if (status != RoutineStatus.PENDING) {
+			throw new BusinessException(ErrorCode.INVALID_DAILY_ROUTINE_STATUS);
+		}
+		this.status = RoutineStatus.SUCCESS;
+		this.failureReason = null;
+	}
+
+	public void update(String title, LocalTime scheduledTime) {
+		if (title != null) {
+			this.title = title;
+		}
+		if (scheduledTime != null) {
+			this.scheduledTime = scheduledTime;
+		}
+	}
 }

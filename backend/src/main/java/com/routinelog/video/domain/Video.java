@@ -51,4 +51,20 @@ public class Video extends BaseEntity {
 
 	@Column(name = "file_size", nullable = false)
 	private Long fileSize;
+
+	public Video(
+		DailyRoutine dailyRoutine,
+		String objectKey,
+		String originalFilename,
+		String contentType,
+		BigDecimal durationSeconds,
+		Long fileSize
+	) {
+		this.dailyRoutine = dailyRoutine;
+		this.objectKey = objectKey;
+		this.originalFilename = originalFilename;
+		this.contentType = contentType;
+		this.durationSeconds = durationSeconds;
+		this.fileSize = fileSize;
+	}
 }

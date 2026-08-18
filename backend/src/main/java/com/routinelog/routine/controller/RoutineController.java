@@ -45,6 +45,14 @@ public class RoutineController {
 		return ResponseEntity.ok(ApiResponse.success(routineService.findAllActive(userId)));
 	}
 
+	@GetMapping("/{routineId}")
+	public ResponseEntity<ApiResponse<RoutineResponse>> find(
+		@AuthenticationPrincipal Long userId,
+		@PathVariable Long routineId
+	) {
+		return ResponseEntity.ok(ApiResponse.success(routineService.find(userId, routineId)));
+	}
+
 	@PatchMapping("/{routineId}")
 	public ResponseEntity<ApiResponse<RoutineResponse>> update(
 		@AuthenticationPrincipal Long userId,

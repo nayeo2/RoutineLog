@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,12 +50,13 @@ class AuthServiceTest {
 		SignupRequest request = new SignupRequest("user@example.com", "password123!", "User");
 		when(userRepository.existsByEmail(request.email())).thenReturn(false);
 		when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
-		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(userRepository.saveAndFlush(any(User.class)))
+			.thenAnswer(invocation -> invocation.getArgument(0));
 
 		SignupResponse response = authService.signup(request);
 
 		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-		verify(userRepository).save(userCaptor.capture());
+		verify(userRepository).saveAndFlush(userCaptor.capture());
 		assertEquals("encoded-password", userCaptor.getValue().getPassword());
 		assertEquals(request.email(), response.email());
 		assertEquals(request.name(), response.name());
@@ -72,7 +74,23 @@ class AuthServiceTest {
 
 		assertEquals(ErrorCode.EMAIL_ALREADY_EXISTS, exception.getErrorCode());
 		verify(passwordEncoder, never()).encode(any());
-		verify(userRepository, never()).save(any());
+		verify(userRepository, never()).saveAndFlush(any());
+	}
+
+	@Test
+	void signupMapsConcurrentDuplicateEmailToConflict() {
+		SignupRequest request = new SignupRequest("user@example.com", "password123!", "User");
+		when(userRepository.existsByEmail(request.email())).thenReturn(false);
+		when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
+		when(userRepository.saveAndFlush(any(User.class)))
+			.thenThrow(DataIntegrityViolationException.class);
+
+		BusinessException exception = assertThrows(
+			BusinessException.class,
+			() -> authService.signup(request)
+		);
+
+		assertEquals(ErrorCode.EMAIL_ALREADY_EXISTS, exception.getErrorCode());
 	}
 
 	@Test

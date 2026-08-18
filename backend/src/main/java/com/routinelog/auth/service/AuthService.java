@@ -10,6 +10,7 @@ import com.routinelog.common.exception.ErrorCode;
 import com.routinelog.user.domain.User;
 import com.routinelog.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,12 @@ public class AuthService {
 
 		String encodedPassword = passwordEncoder.encode(request.password());
 		User user = new User(request.email(), encodedPassword, request.name());
-		User savedUser = userRepository.save(user);
+		User savedUser;
+		try {
+			savedUser = userRepository.saveAndFlush(user);
+		} catch (DataIntegrityViolationException exception) {
+			throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
+		}
 
 		return SignupResponse.from(savedUser);
 	}

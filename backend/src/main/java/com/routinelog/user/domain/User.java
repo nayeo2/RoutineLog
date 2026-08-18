@@ -42,4 +42,12 @@ public class User extends BaseEntity {
 		this.password = password;
 		this.name = name;
 	}
+
+	public void updateName(String name) {
+		this.name = name;
+	}
+
+	public void updateProfileImageKey(String profileImageKey) {
+		this.profileImageKey = profileImageKey;
+	}
 }

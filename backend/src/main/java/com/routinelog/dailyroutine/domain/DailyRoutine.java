@@ -1,6 +1,8 @@
 package com.routinelog.dailyroutine.domain;
 
 import com.routinelog.common.domain.BaseEntity;
+import com.routinelog.common.exception.BusinessException;
+import com.routinelog.common.exception.ErrorCode;
 import com.routinelog.routine.domain.Routine;
 import com.routinelog.user.domain.User;
 import jakarta.persistence.Column;
@@ -65,4 +67,34 @@ public class DailyRoutine extends BaseEntity {
 
 	@Column(name = "failure_reason", length = 500)
 	private String failureReason;
+
+	public DailyRoutine(
+		User user,
+		Routine routine,
+		LocalDate routineDate,
+		String title,
+		LocalTime scheduledTime
+	) {
+		this.user = user;
+		this.routine = routine;
+		this.routineDate = routineDate;
+		this.title = title;
+		this.scheduledTime = scheduledTime;
+	}
+
+	public void fail(String failureReason) {
+		if (status != RoutineStatus.PENDING) {
+			throw new BusinessException(ErrorCode.INVALID_DAILY_ROUTINE_STATUS);
+		}
+		this.status = RoutineStatus.FAILED;
+		this.failureReason = failureReason;
+	}
+
+	public void restorePending() {
+		if (status != RoutineStatus.FAILED) {
+			throw new BusinessException(ErrorCode.INVALID_DAILY_ROUTINE_STATUS);
+		}
+		this.status = RoutineStatus.PENDING;
+		this.failureReason = null;
+	}
 }

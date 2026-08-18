@@ -57,4 +57,24 @@ public class Routine extends BaseEntity {
 		this.scheduledTime = scheduledTime;
 		repeatDays.forEach(dayOfWeek -> this.repeatDays.add(new RoutineRepeatDay(this, dayOfWeek)));
 	}
+
+	public void update(String title, LocalTime scheduledTime, List<DayOfWeek> repeatDays) {
+		if (title != null) {
+			this.title = title;
+		}
+		if (scheduledTime != null) {
+			this.scheduledTime = scheduledTime;
+		}
+		if (repeatDays != null) {
+			this.repeatDays.removeIf(repeatDay -> !repeatDays.contains(repeatDay.getDayOfWeek()));
+			repeatDays.stream()
+				.filter(dayOfWeek -> this.repeatDays.stream()
+					.noneMatch(repeatDay -> repeatDay.getDayOfWeek() == dayOfWeek))
+				.forEach(dayOfWeek -> this.repeatDays.add(new RoutineRepeatDay(this, dayOfWeek)));
+		}
+	}
+
+	public void deactivate() {
+		this.active = false;
+	}
 }

@@ -1,8 +1,10 @@
 package com.routinelog.routine.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +14,7 @@ import com.routinelog.common.exception.ErrorCode;
 import com.routinelog.routine.domain.Routine;
 import com.routinelog.routine.dto.CreateRoutineRequest;
 import com.routinelog.routine.dto.RoutineResponse;
+import com.routinelog.routine.dto.UpdateRoutineRequest;
 import com.routinelog.routine.repository.RoutineRepository;
 import com.routinelog.user.domain.User;
 import com.routinelog.user.repository.UserRepository;
@@ -106,5 +109,88 @@ class RoutineServiceTest {
 		assertEquals(List.of("Morning exercise", "Reading"), responses.stream()
 			.map(RoutineResponse::title)
 			.toList());
+	}
+
+	@Test
+	void updateChangesOnlyProvidedFields() {
+		Long userId = 1L;
+		Routine routine = ownedRoutine(userId);
+		UpdateRoutineRequest request = new UpdateRoutineRequest(
+			null,
+			LocalTime.of(8, 0),
+			List.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)
+		);
+		when(routineRepository.findById(10L)).thenReturn(Optional.of(routine));
+
+		RoutineResponse response = routineService.update(userId, 10L, request);
+
+		assertEquals("Morning exercise", response.title());
+		assertEquals(LocalTime.of(8, 0), response.scheduledTime());
+		assertEquals(List.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY), response.repeatDays());
+	}
+
+	@Test
+	void updateRejectsRoutineOwnedByAnotherUser() {
+		Routine routine = ownedRoutine(2L);
+		when(routineRepository.findById(10L)).thenReturn(Optional.of(routine));
+
+		BusinessException exception = assertThrows(
+			BusinessException.class,
+			() -> routineService.update(1L, 10L, new UpdateRoutineRequest("Stretching", null, null))
+		);
+
+		assertEquals(ErrorCode.ROUTINE_ACCESS_DENIED, exception.getErrorCode());
+	}
+
+	@Test
+	void updateRejectsMissingRoutine() {
+		when(routineRepository.findById(10L)).thenReturn(Optional.empty());
+
+		BusinessException exception = assertThrows(
+			BusinessException.class,
+			() -> routineService.update(1L, 10L, new UpdateRoutineRequest("Stretching", null, null))
+		);
+
+		assertEquals(ErrorCode.ROUTINE_NOT_FOUND, exception.getErrorCode());
+	}
+
+	@Test
+	void updateRejectsDuplicateRepeatDay() {
+		Routine routine = ownedRoutine(1L);
+		when(routineRepository.findById(10L)).thenReturn(Optional.of(routine));
+		UpdateRoutineRequest request = new UpdateRoutineRequest(
+			null,
+			null,
+			List.of(DayOfWeek.MONDAY, DayOfWeek.MONDAY)
+		);
+
+		BusinessException exception = assertThrows(
+			BusinessException.class,
+			() -> routineService.update(1L, 10L, request)
+		);
+
+		assertEquals(ErrorCode.INVALID_REPEAT_DAY, exception.getErrorCode());
+	}
+
+	@Test
+	void deleteDeactivatesOwnedRoutine() {
+		Routine routine = ownedRoutine(1L);
+		when(routineRepository.findById(10L)).thenReturn(Optional.of(routine));
+
+		routineService.delete(1L, 10L);
+
+		assertFalse(routine.isActive());
+		verify(routineRepository, never()).delete(any());
+	}
+
+	private Routine ownedRoutine(Long userId) {
+		User user = mock(User.class);
+		when(user.getId()).thenReturn(userId);
+		return new Routine(
+			user,
+			"Morning exercise",
+			LocalTime.of(7, 0),
+			List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+		);
 	}
 }

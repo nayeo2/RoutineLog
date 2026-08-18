@@ -25,7 +25,6 @@ frontend/dist/
 .env.*
 !.env.example
 
-backend/src/main/resources/application-local.yml
 frontend/.env.local
 
 # ==============================

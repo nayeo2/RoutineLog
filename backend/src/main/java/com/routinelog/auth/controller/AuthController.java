@@ -1,5 +1,7 @@
 package com.routinelog.auth.controller;
 
+import com.routinelog.auth.dto.LoginRequest;
+import com.routinelog.auth.dto.LoginResponse;
 import com.routinelog.auth.dto.SignupRequest;
 import com.routinelog.auth.dto.SignupResponse;
 import com.routinelog.auth.service.AuthService;
@@ -28,5 +30,13 @@ public class AuthController {
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
 			.body(ApiResponse.success(response));
+	}
+
+	@PostMapping("/login")
+	public ResponseEntity<ApiResponse<LoginResponse>> login(
+		@Valid @RequestBody LoginRequest request
+	) {
+		LoginResponse response = authService.login(request);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 }
